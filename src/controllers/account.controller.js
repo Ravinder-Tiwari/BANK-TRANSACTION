@@ -23,7 +23,18 @@ async function createAccount(req, res) {
     }
 }
 
+async function getUserAccounts(req, res) {
+    const accounts = await accountModel.find({
+        user: req.user._id
+    })
+    res.status(200).json({
+        message: "accounts fetched successfully",
+        accounts
+    })
+}
+
 
 module.exports = {
-    createAccount
+    createAccount,
+    getUserAccounts
 }

@@ -12,7 +12,7 @@ async function userRegisterController(req, res) {
 
     if (isExists) {
         return res.status(422).json({
-            message: "user aalready exits with email.",
+            message: "user already exits with email.",
             status: "failed"
         })
     }
@@ -49,7 +49,8 @@ async function userRegisterController(req, res) {
 async function userLoginController(req,res){
     const {email,password} = req.body
     const user = await userModel.findOne({email}).select("+password")
-
+    console.log(user)
+    
     if(!user){
         return res.status(401).json({
             message:"Email or Password is INVALID"
@@ -57,7 +58,7 @@ async function userLoginController(req,res){
     }
 
     const isValidPassword = await user.comparePassword(password)
-
+    console.log(isValidPassword)
     if(!isValidPassword){
         return res.status(401).json({
             message:"Email or Password is INVALID"
