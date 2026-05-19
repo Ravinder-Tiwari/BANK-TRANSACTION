@@ -38,19 +38,18 @@ const Analytics = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
       <div>
-        <h1 className="text-2xl font-bold text-white">Financial Analytics</h1>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Financial Analytics</h1>
         <p className="text-slate-400 text-sm mt-1">Detailed insights into your spending and income</p>
       </div>
 
       {/* Main Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Balance Area Chart */}
-        <div className="lg:col-span-2 glass rounded-2xl p-6">
-          <h3 className="text-lg font-bold text-white mb-6">Balance Trends</h3>
-          <div className="h-[300px] w-full">
+        <div className="lg:col-span-2 glass rounded-2xl p-4 sm:p-6">
+          <h3 className="text-lg font-bold text-white mb-4 sm:mb-6">Balance Trends</h3>
+          <div className="h-[200px] sm:h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={balanceData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
@@ -70,17 +69,17 @@ const Analytics = () => {
         </div>
 
         {/* Spending Donut Chart */}
-        <div className="glass rounded-2xl p-6 flex flex-col">
-          <h3 className="text-lg font-bold text-white mb-6">Spending by Category</h3>
-          <div className="h-[240px] w-full flex-1 relative">
+        <div className="glass rounded-2xl p-4 sm:p-6 flex flex-col">
+          <h3 className="text-lg font-bold text-white mb-4 sm:mb-6">Spending by Category</h3>
+          <div className="h-[200px] sm:h-[240px] w-full flex-1 relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={50}
+                  outerRadius={70}
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
@@ -94,11 +93,10 @@ const Analytics = () => {
             </ResponsiveContainer>
             {/* Center text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-bold text-white">${totalSpent.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
+              <span className="text-lg sm:text-2xl font-bold text-white">${totalSpent.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
               <span className="text-xs text-slate-400">Total Spent</span>
             </div>
           </div>
-          
           <div className="mt-4 grid grid-cols-2 gap-2">
             {categoryData.map(category => (
               <div key={category.name} className="flex items-center gap-2 text-xs">
@@ -110,9 +108,9 @@ const Analytics = () => {
         </div>
 
         {/* Cashflow Bar Chart */}
-        <div className="lg:col-span-3 glass rounded-2xl p-6">
-          <h3 className="text-lg font-bold text-white mb-6">Income vs. Expenses</h3>
-          <div className="h-[300px] w-full">
+        <div className="lg:col-span-3 glass rounded-2xl p-4 sm:p-6">
+          <h3 className="text-lg font-bold text-white mb-4 sm:mb-6">Income vs. Expenses</h3>
+          <div className="h-[200px] sm:h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={cashflowData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barGap={8}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
@@ -126,7 +124,6 @@ const Analytics = () => {
             </ResponsiveContainer>
           </div>
         </div>
-
       </div>
     </div>
   );

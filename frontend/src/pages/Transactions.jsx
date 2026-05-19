@@ -17,14 +17,43 @@ const Transactions = () => {
 
   const transactions = data?.transactions || [];
 
+  // Utility function to export CSV
+  const exportToCSV = () => {
+    const csvContent = [
+      ['Transaction ID', 'Date & Time', 'Description', 'Account', 'Status', 'Amount'],
+      ...transactions.map(tx => [
+        tx.id,
+        tx.date,
+        tx.description,
+        tx.account,
+        tx.status,
+        `${tx.type === 'credit' ? '+' : '-'}${Math.abs(tx.amount).toFixed(2)}`
+      ])
+    ]
+      .map(row => row.join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'transactions.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Transactions Ledger</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Transactions Ledger</h1>
           <p className="text-slate-400 text-sm mt-1">Track and manage all your banking activities</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-medium text-white transition-colors">
+        <button 
+          onClick={exportToCSV}
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-medium text-white transition-colors"
+        >
           <Download className="w-4 h-4" />
           Export CSV
         </button>

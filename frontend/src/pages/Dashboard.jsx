@@ -54,10 +54,16 @@ const Dashboard = () => {
   const accountId = stats?.accountId || 'N/A';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Dashboard</h1>
+        <p className="text-slate-400 text-sm mt-1">Overview of your financial activity</p>
+      </div>
+
       {/* Top Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 rounded-2xl relative overflow-hidden group">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="glass-card p-5 sm:p-6 rounded-2xl relative overflow-hidden group sm:col-span-2 lg:col-span-1">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-500"></div>
           <div className="flex justify-between items-start mb-4 relative z-10">
             <div>
@@ -75,7 +81,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="glass p-6 rounded-2xl">
+        <div className="glass p-5 sm:p-6 rounded-2xl">
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-slate-400 font-medium mb-1">Total Credits</p>
@@ -87,7 +93,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="glass p-6 rounded-2xl">
+        <div className="glass p-5 sm:p-6 rounded-2xl">
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-slate-400 font-medium mb-1">Total Debits</p>
@@ -100,14 +106,14 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Recent Transactions */}
         <div className="lg:col-span-2 glass rounded-2xl overflow-hidden">
-          <div className="p-6 border-b border-white/10 flex justify-between items-center">
+          <div className="p-4 sm:p-6 border-b border-white/10 flex justify-between items-center">
             <h3 className="text-lg font-bold text-white">Recent Transactions</h3>
             <button className="text-sm text-primary hover:text-primary/80 font-medium">View All</button>
           </div>
-          <div className="p-0">
+          <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-300">
               <thead className="bg-white/5 text-xs uppercase text-slate-400">
                 <tr>
@@ -142,7 +148,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Transfer Form */}
-        <div className="glass rounded-2xl p-6">
+        <div className="glass rounded-2xl p-5 sm:p-6">
           <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
             <Send className="w-5 h-5 text-primary" />
             Quick Transfer
