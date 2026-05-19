@@ -30,14 +30,28 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+
+    // Don't redirect for /auth/me — a 401 there just means
+    // the user isn't logged in yet. AuthContext handles this gracefully.
+    const isAuthMeRequest = originalRequest?.url?.includes('/auth/me');
+
+    // Don't redirect if already on a public auth page (prevents reload loop)
+    const isOnAuthPage =
+      window.location.pathname === '/login' ||
+      window.location.pathname === '/register';
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthMeRequest &&
+      !isOnAuthPage
+    ) {
       originalRequest._retry = true;
-      // Handle token refresh logic here if needed
-      // If no refresh token mechanism, just logout
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+
     return Promise.reject(error);
   }
 );
