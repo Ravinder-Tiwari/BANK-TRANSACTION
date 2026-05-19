@@ -76,7 +76,7 @@ async function createTransaction(req, res) {
             })
         }
         if (isTransactionAlreadyExists.status === "REVERSED") {
-            return es.status(200).json({
+            return res.status(200).json({
                 message: "transaction has already been processed and reversed",
                 transaction: isTransactionAlreadyExists
             })
@@ -97,7 +97,7 @@ async function createTransaction(req, res) {
      * Step 4: Derive sender balance from ledger
      */
     const balance = await fromUserAccount.getBalance()
-
+    console.log(balance)
     if (balance < amount) {
         return res.status(400).json({
             message: `insufficient balance. current balance is ${balance} ${fromUserAccount.currency}.Required balance is ${amount} ${fromUserAccount.currency}`
@@ -112,56 +112,69 @@ async function createTransaction(req, res) {
     const session = await mongoose.startSession()
     session.startTransaction()
 
-    const transaction = await transactionModel.create({
-        fromAccount,
-        toAccount,
-        amount,
-        idempotencyKey,
-        status: "PENDING"
-    }, { session })
+    let transaction;
+    try {
+        transaction = (await transactionModel.create([{
+            fromAccount,
+            toAccount,
+            amount,
+            idempotencyKey,
+            status: "PENDING"
+        }], { session }))[0]
+
+        /**
+         * Step 6: Create DEBIT ledger entry
+         */
+
+        const debitLedgerEntry = await ledgerModel.create([{
+            account: fromAccount,
+            transaction: transaction._id,
+            type: "DEBIT",
+            amount
+        }], { session })
+
+        /**
+         * Step 7: Create CREDIT ledger entry
+         */
+
+        await (() => {
+            return new Promise((resolve) =>
+                setTimeout(resolve, 15 * 100))
+        })()
+
+        const creditLedgerEntry = await ledgerModel.create([{
+            account: toAccount,
+            transaction: transaction._id,
+            type: "CREDIT",
+            amount
+        }], { session })
+
+        /**
+         * Step 8: Mark transaction as COMPLETED
+         */
+
+        transaction.status = "COMPLETED"
+        await transaction.save({ session })
 
 
+
+        /** 
+         * 9. Commit MongoDB session
+         */
+
+        await session.commitTransaction()
+        await session.endSession()
+
+
+    }
+    catch (err) {
+        return res.status(400).json({
+            message: "transaction is Pending due to some issues please try again after some time",
+        })
+    }
     /**
-     * Step 6: Create DEBIT ledger entry
-     */
-
-    const debitLedgerEntry = await ledgerModel.create({
-        account: fromAccount,
-        transaction: transaction._id,
-        type: "DEBIT",
-        amount
-    }, { session })
-
-    /**
-     * Step 7: Create CREDIT ledger entry
-     */
-
-    const creditLedgerEntry = await ledgerModel.create({
-        account: toAccount,
-        transaction: transaction._id,
-        type: "CREDIT",
-        amount
-    }, { session })
-
-    /**
-     * Step 8: Mark transaction as COMPLETED
-     */
-
-    transaction.status = "COMPLETED"
-    await transaction.save({ session })
-
-
-
-    /** 
-     * 9. Commit MongoDB session
-     */
-
-    session.commitTransaction()
-    session.endSession()
-
-    /**
-     * 10. Send notification emails to sender and receiver
-     */
+  * 10. Send notification emails to sender and receiver
+  */
 
     const fromUserEmail = req.user.email
     const toUserEmail = toUserAccount.user.email
@@ -209,7 +222,7 @@ async function createInitialFundsTransaction(req, res) {
         })
     }
 
-    const session = await mongoose.startSession() 
+    const session = await mongoose.startSession()
     session.startTransaction()
 
     const transaction = new transactionModel({
@@ -243,14 +256,14 @@ async function createInitialFundsTransaction(req, res) {
 
     session.endSession()
 
-    res.status(201).json({  
+    res.status(201).json({
         message: "initial funds transaction processed successfully",
         transaction
     })
 
 }
 
-module.exports = { 
+module.exports = {
     createTransaction,
     createInitialFundsTransaction
 }

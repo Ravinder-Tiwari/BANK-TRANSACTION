@@ -26,26 +26,36 @@ const accountSchema = new mongoose.Schema({
 
 accountSchema.index({ user: 1,status: 1 })
 
-accountSchema.methods.getBalance = async function() {
-    const Transaction = mongoose.model("transaction")
+accountSchema.methods.getBalance = async function () {
+    const Transaction = mongoose.model("transaction");
+
     const balanceData = await Transaction.aggregate([
-        { $match: { account: this._id } },
+        {
+            $match: {
+                $or: [
+                    { fromAccount: this._id },
+                    { toAccount: this._id }
+                ]
+            }
+        },
         {
             $group: {
                 _id: null,
+
                 totalDebits: {
                     $sum: {
                         $cond: [
-                            { $eq: ["$type", "DEBIT"] },
+                            { $eq: ["$fromAccount", this._id] },
                             "$amount",
                             0
                         ]
                     }
                 },
+
                 totalCredits: {
                     $sum: {
                         $cond: [
-                            { $eq: ["$type", "CREDIT"] },
+                            { $eq: ["$toAccount", this._id] },
                             "$amount",
                             0
                         ]
@@ -58,17 +68,23 @@ accountSchema.methods.getBalance = async function() {
                 _id: 0,
                 totalDebits: 1,
                 totalCredits: 1,
-                balance: { $subtract: ["$totalCredits", "$totalDebits"] }
+                balance: {
+                    $subtract: ["$totalCredits", "$totalDebits"]
+                }
             }
         }
-    ])
+    ]);
 
     if (!balanceData.length) {
-        return { totalDebits: 0, totalCredits: 0, balance: 0 }
+        return {
+            totalDebits: 0,
+            totalCredits: 0,
+            balance: 0
+        };
     }
 
-    return balanceData[0].balance
-}
+    return balanceData[0].balance;
+};
 
 
 const accountModel = mongoose.model("account", accountSchema)

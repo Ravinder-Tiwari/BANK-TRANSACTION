@@ -34,7 +34,33 @@ async function getUserAccounts(req, res) {
 }
 
 
+async function getAccountBalance(req, res) {
+    const accountId = req.params.accountId
+
+    const account = await accountModel.findOne({
+        _id: accountId,
+        user: req.user._id
+    }) 
+    
+    console.log(account)
+
+    if (!account) {
+        return res.status(404).json({
+            message: "account not found for the user"
+        })
+    }
+
+    const balance = await account.getBalance();
+    
+    res.status(200).json({
+        accountId : account._id,
+        balance : balance
+    })
+
+}
+
 module.exports = {
     createAccount,
-    getUserAccounts
+    getUserAccounts,
+    getAccountBalance
 }

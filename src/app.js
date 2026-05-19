@@ -13,6 +13,16 @@ app.use(express.json())
 app.use(cookieParser())
 
 
+/**
+ * - Test Route
+ */
+
+app.get("/",(req,res)=>{
+    res.status(200).json({
+        message:"API is working fine",  
+    })
+})
+
 /*
     All Routes will be registered here
 */
