@@ -116,13 +116,13 @@ async function createTransaction(req, res) {
 
     let transaction;
     try {
-        transaction = (await transactionModel.create([{
+        const [transaction] = await transactionModel.create([{
             fromAccount,
             toAccount,
             amount,
             idempotencyKey,
-            status: "PENDING"
-        }], { session }))[0]
+            status: "COMPLETED"
+        }], { session })
 
         /**
          * Step 6: Create DEBIT ledger entry
@@ -150,15 +150,6 @@ async function createTransaction(req, res) {
             type: "CREDIT",
             amount
         }], { session })
-
-        /**
-         * Step 8: Mark transaction as COMPLETED
-         */
-
-        transaction.status = "COMPLETED"
-        await transaction.save({ session })
-
-
 
         /** 
          * 9. Commit MongoDB session
@@ -418,13 +409,15 @@ async function transferFunds(req, res) {
 
         let transaction;
         try {
-            transaction = (await transactionModel.create([{
+            const [createdTx] = await transactionModel.create([{
                 fromAccount: fromAccountDoc._id,
                 toAccount: toAccountDoc._id,
                 amount: numericAmount,
                 idempotencyKey,
-                status: "PENDING"
-            }], { session }))[0];
+                status: "COMPLETED"
+            }], { session });
+            
+            transaction = createdTx;
 
             await ledgerModel.create([{
                 account: fromAccountDoc._id,
@@ -439,9 +432,6 @@ async function transferFunds(req, res) {
                 type: "CREDIT",
                 amount: numericAmount
             }], { session });
-
-            transaction.status = "COMPLETED";
-            await transaction.save({ session });
 
             await session.commitTransaction();
             session.endSession();

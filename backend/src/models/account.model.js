@@ -35,7 +35,8 @@ accountSchema.methods.getBalance = async function () {
                 $or: [
                     { fromAccount: new mongoose.Types.ObjectId(this._id) },
                     { toAccount: new mongoose.Types.ObjectId(this._id) }
-                ]
+                ],
+                status: "COMPLETED"
             }
         },
         {
